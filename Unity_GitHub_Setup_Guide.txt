@@ -44,25 +44,32 @@ Unity + GitHub Setup Guide (macOS / Command Line)
    - DO NOT add a README, .gitignore, or license (you already have a .gitignore)
    - Click Create repository
 
-6. Copy your repo URL from the green “Code” button on GitHub:
+6. Setup GitHub CLI authentication method (one-time setup)
+   brew install gh     # if not already installed
+   gh auth login
+   
+   - Select: GitHub.com → HTTPS → "Login with a web browser"
+   - Use Github credentials Y, copy code, paste into browser, login and authorise.
+
+7. Copy your repo URL from the green “Code” button on GitHub:
    HTTPS example: https://github.com/<YourUser>/<YourUnityProjectName>.git
    SSH example:   git@github.com:<YourUser>/<YourUnityProjectName>.git
 
-7. Link your local repo to GitHub and push:
+8. Link your local repo to GitHub and push:
    git remote add origin <PASTE_YOUR_REPO_URL_HERE>
    git branch -M main
    git push -u origin main
 
-8. (Optional) Configure your name and email for commits (one-time global setup):
-   git config --global user.name "Your Name"
+9. (Optional) Configure your name and email for commits (one-time global setup):
+   git config --global user.name "Your Name" (Github Username)
    git config --global user.email "you@example.com"
 
-9. (Optional) Add a quick auto-save function to your shell for fast commits:
+10. (Optional) Add a quick auto-save function to your shell for fast commits:
    Open your shell config (zsh default on macOS):
      nano ~/.zshrc
    Paste this function at the end, save, then reload with: source ~/.zshrc
 
-     jam-save() {
+     git-save() {
        local msg="$*"
        if [ -z "$msg" ]; then
          msg="Auto-save $(date +"%Y-%m-%d %H:%M")"
@@ -72,7 +79,7 @@ Unity + GitHub Setup Guide (macOS / Command Line)
        git push
      }
 
-10. Daily workflow:
+11. Daily workflow:
     - Make changes in Unity
     - Save/close Unity (ensures meta files are updated)
     - In Terminal from your project root:
