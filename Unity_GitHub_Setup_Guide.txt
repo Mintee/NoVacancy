@@ -1,0 +1,89 @@
+Unity + GitHub Setup Guide (macOS / Command Line)
+
+1. Open Terminal and navigate to your Unity project root (contains Assets, Packages, ProjectSettings):
+   cd /path/to/YourUnityProject
+
+2. Initialize a new Git repository:
+   git init
+
+3. Create and edit the .gitignore (Unity standard) so you don’t commit Library/Temp/etc.:
+   nano .gitignore
+	Use cmd+shift+.[period] to view hidden files.
+   (Paste the following, then press Ctrl+O, Enter to save, and Ctrl+X to exit)
+
+   [Ll]ibrary/
+   [Tt]emp/
+   [Oo]bj/
+   [Bb]uild/
+   [Bb]uilds/
+   [Ll]ogs/
+   [Mm]emoryCaptures/
+   UserSettings/
+   *.csproj
+   *.unityproj
+   *.sln
+   *.user
+   *.userprefs
+   *.pidb
+   *.booproj
+   *.svd
+   *.pdb
+   *.mdb
+   *.opendb
+   *.VC.db
+   .DS_Store
+
+4. Stage and commit your project:
+   git add .
+   git commit -m "Initial Unity project commit"
+
+5. Create a new repository on GitHub:
+   - Go to https://github.com/new
+   - Repository name: [YourUnityProjectName]
+   - Visibility: Private (recommended) or Public
+   - DO NOT add a README, .gitignore, or license (you already have a .gitignore)
+   - Click Create repository
+
+6. Copy your repo URL from the green “Code” button on GitHub:
+   HTTPS example: https://github.com/<YourUser>/<YourUnityProjectName>.git
+   SSH example:   git@github.com:<YourUser>/<YourUnityProjectName>.git
+
+7. Link your local repo to GitHub and push:
+   git remote add origin <PASTE_YOUR_REPO_URL_HERE>
+   git branch -M main
+   git push -u origin main
+
+8. (Optional) Configure your name and email for commits (one-time global setup):
+   git config --global user.name "Your Name"
+   git config --global user.email "you@example.com"
+
+9. (Optional) Add a quick auto-save function to your shell for fast commits:
+   Open your shell config (zsh default on macOS):
+     nano ~/.zshrc
+   Paste this function at the end, save, then reload with: source ~/.zshrc
+
+     jam-save() {
+       local msg="$*"
+       if [ -z "$msg" ]; then
+         msg="Auto-save $(date +"%Y-%m-%d %H:%M")"
+       }
+       git add -A
+       git commit -m "$msg"
+       git push
+     }
+
+10. Daily workflow:
+    - Make changes in Unity
+    - Save/close Unity (ensures meta files are updated)
+    - In Terminal from your project root:
+        jam-save "Describe your change"
+      (or manually run: git add -A && git commit -m "Message" && git push)
+
+Tips:
+• To show hidden files like .gitignore in Finder quickly: press Command + Shift + .
+• If you accidentally committed Library/, remove it:
+    echo "Library/" >> .gitignore
+    git rm -r --cached Library
+    git commit -m "Stop tracking Library"
+    git push
+• If 'main' branch doesn’t exist yet, 'git branch -M main' creates/renames it.
