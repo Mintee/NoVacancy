@@ -28,6 +28,10 @@ public class PlayerController : MonoBehaviour
 
     [Header("Animator Params")]
     [SerializeField] private string paramSpeed = "Speed";
+
+    [SerializeField] private string paramMoveX = "MoveX";
+    [SerializeField] private string paramMoveZ = "MoveZ";
+
     [SerializeField] private string paramIsAiming = "IsAiming";
     [SerializeField] private string paramIsSprinting = "IsSprinting";
     [SerializeField] private string paramIsCrouching = "IsCrouching";
@@ -45,7 +49,7 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         cc = GetComponent<CharacterController>();
-        // if (!animator) animator = GetComponent<Animator>();
+        if (!animator) animator = GetComponent<Animator>();
         if (!mainCamera) mainCamera = Camera.main;
 
         // Ensure CC starts at stand height
@@ -87,8 +91,14 @@ public class PlayerController : MonoBehaviour
             IsAiming    ? aimSpeed    :
             isSprinting ? sprintSpeed : walkSpeed;
 
+        // Build unnormalized camera-relative vector from the stick
         Vector3 desiredDir = camF * move.y + camR * move.x;
-        Vector3 desiredVel = desiredDir.normalized * targetSpeed;
+
+        // Clamp length to 1 so diagonals aren’t faster, but KEEP stick magnitude (0..1)
+        float inputMag = Mathf.Clamp01(move.magnitude);
+        Vector3 desiredVel = (desiredDir.sqrMagnitude > 0.0001f)
+            ? desiredDir.normalized * (targetSpeed * inputMag)
+            : Vector3.zero;
         planarVelocity = Vector3.MoveTowards(planarVelocity, desiredVel, acceleration * dt);
 
         // Gravity
@@ -122,11 +132,39 @@ public class PlayerController : MonoBehaviour
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(faceDir, Vector3.up), rotationSpeed * dt);
         }
 
+        // --- Animator axes (local, signed, stable on diagonals) ---
+        Vector3 localDesired = transform.InverseTransformDirection(desiredDir);
+
+        // Build planar axes: X = strafe, Z = forward/back
+        Vector2 moveAxes = new Vector2(localDesired.x, localDesired.z);
+
+        // Square-normalize to keep corners stable (prevents fight between forward/strafe on 45°)
+        if (moveAxes != Vector2.zero)
+        {
+            float maxAbs = Mathf.Max(Mathf.Abs(moveAxes.x), Mathf.Abs(moveAxes.y));
+            float denom = Mathf.Max(1f, maxAbs);
+            moveAxes /= denom; // maps to a unit square, so (±1,±1) corners are stable
+        }
+
+        // Small deadzone and light quantization to kill micro-jitter
+        const float dead = 0.05f;
+        if (Mathf.Abs(moveAxes.x) < dead) moveAxes.x = 0f;
+        if (Mathf.Abs(moveAxes.y) < dead) moveAxes.y = 0f;
+        // optional: quantize a hair to steady weights (comment out if you don’t need it)
+        moveAxes.x = Mathf.Round(moveAxes.x * 100f) / 100f;
+        moveAxes.y = Mathf.Round(moveAxes.y * 100f) / 100f;
+
+        // Normalized 0..1 speed (useful if your graph/UI still reads Speed)
+        float maxPlanar = Mathf.Max(walkSpeed, Mathf.Max(sprintSpeed, Mathf.Max(aimSpeed, crouchSpeed)));
+        float normalizedSpeed01 = Mathf.Clamp01(new Vector2(planarVelocity.x, planarVelocity.z).magnitude / maxPlanar);
+
         // Animator
         if (animator)
         {
-            float speed = new Vector2(planarVelocity.x, planarVelocity.z).magnitude;
-            animator.SetFloat(paramSpeed, speed);
+            animator.SetFloat(paramMoveX, moveAxes.x, 0.12f, dt);
+            animator.SetFloat(paramMoveZ, moveAxes.y, 0.12f, dt);
+            animator.SetFloat(paramSpeed, normalizedSpeed01, 0.1f, dt);
+
             animator.SetBool(paramIsAiming, IsAiming);
             animator.SetBool(paramIsSprinting, isSprinting && !IsAiming && !isCrouching);
             animator.SetBool(paramIsCrouching, isCrouching);
