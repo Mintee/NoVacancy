@@ -519,6 +519,17 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 1
+--- !u!114 &536803467 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 282713568435848721, guid: da38c4cce8b2c4faeb0bdbd3cdf5ffd5, type: 3}
+  m_PrefabInstance: {fileID: 4445142919036707508}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5da486be75ce34742bceb1680564cbb5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &670195203
 GameObject:
   m_ObjectHideFlags: 0
@@ -1135,6 +1146,7 @@ GameObject:
   - component: {fileID: 1119430899}
   - component: {fileID: 1119430898}
   - component: {fileID: 1119430901}
+  - component: {fileID: 1119430902}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -1189,11 +1201,16 @@ MonoBehaviour:
   crouchLerpSpeed: 10
   paramSpeed: Speed
   paramMoveX: MoveX
-  paramMoveY: MoveY
+  paramMoveZ: MoveZ
   paramIsAiming: IsAiming
   paramIsSprinting: IsSprinting
   paramIsCrouching: IsCrouching
   externalYawControl: 1
+  useCardinalLock: 1
+  lockDeadzone: 0.05
+  lockHysteresis: 0.15
+  animatorDamping: 0.12
+  useStateMachine: 1
 --- !u!95 &1119430899
 Animator:
   serializedVersion: 7
@@ -1266,6 +1283,21 @@ MonoBehaviour:
   maxPitch: 50
   invertY: 1
   rotationSpeed: 540
+--- !u!114 &1119430902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1119430896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6063844b8ae684a49803d17d9ebe0761, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Motor: {fileID: 1119430898}
+  Input: {fileID: 536803467}
+  Animator: {fileID: 1119430899}
 --- !u!1 &1160764140
 GameObject:
   m_ObjectHideFlags: 0
