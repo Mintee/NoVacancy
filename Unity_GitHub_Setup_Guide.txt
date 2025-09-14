@@ -83,7 +83,7 @@ Unity + GitHub Setup Guide (macOS / Command Line)
     - Make changes in Unity
     - Save/close Unity (ensures meta files are updated)
     - In Terminal from your project root:
-        jam-save "Describe your change"
+        git-save "Describe your change"
       (or manually run: git add -A && git commit -m "Message" && git push)
 
 Tips:
