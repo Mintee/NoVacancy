@@ -4,36 +4,27 @@ using Unity.Cinemachine;
 public class CameraController : MonoBehaviour
 {
     [Header("Virtual Cameras")]
-    [SerializeField] private CinemachineCamera cmShoulder;   // exploration camera
-    [SerializeField] private CinemachineCamera cmAim;        // aiming camera
+    [SerializeField] private CinemachineCamera LocoCam;  // exploration camera
+    [SerializeField] private CinemachineCamera AimCam;   // aiming camera
 
     [Header("Priorities")]
-    [SerializeField] private int shoulderPriority = 10;
-    [SerializeField] private int aimPriority = 20;
+    [SerializeField] private int LocoPriority = 10;
+    [SerializeField] private int AimPriority = 11;
 
     private void OnEnable()
     {
-        Apply(false);
+        if (InputReader.Instance != null) InputReader.AimChangedEvent += SetAim;
     }
 
-    private void Update()
+    private void OnDisable()
     {
-        Apply(PlayerController.IsAiming);
+        if (InputReader.Instance != null) InputReader.AimChangedEvent -= SetAim;
     }
 
-    private void Apply(bool aiming)
+    
+    private void SetAim(bool aiming)
     {
-        if (!cmShoulder || !cmAim) return;
-
-        if (aiming)
-        {
-            cmAim.Priority = aimPriority;
-            cmShoulder.Priority = shoulderPriority - 1;
-        }
-        else
-        {
-            cmAim.Priority = shoulderPriority - 1;
-            cmShoulder.Priority = shoulderPriority;
-        }
+        if (LocoCam != null) LocoCam.Priority = aiming ? LocoPriority : Mathf.Max(LocoPriority, AimPriority - 1);
+        if (AimCam != null) AimCam.Priority = aiming ? Mathf.Max(AimPriority, LocoPriority + 1) : AimPriority - 2;
     }
 }
